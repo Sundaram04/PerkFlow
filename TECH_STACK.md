@@ -12,5 +12,7 @@ Confirmed initial choices:
 - `@ConfigurationProperties` for the typed `perkflow.*` settings group; `@Value` for a single injected property
 - `@RestControllerAdvice` and `@ExceptionHandler` for centralized API error responses
 - `ApiErrorResponse` record for consistent error payloads
+- SLF4J API with Logback, supplied by the Spring Boot Web starter, for application logging
+- Spring Boot property-based logging levels with profile-specific settings; standard console output and no file logging setup
 
 No database, security, cache, or messaging technology has been added in this task.

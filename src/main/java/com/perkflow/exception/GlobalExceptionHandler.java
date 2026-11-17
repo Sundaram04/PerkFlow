@@ -3,6 +3,8 @@ package com.perkflow.exception;
 import java.time.Instant;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final String UNEXPECTED_ERROR_MESSAGE = "An unexpected error occurred.";
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -24,11 +27,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleBadRequest(
             BadRequestException exception,
             HttpServletRequest request) {
+        LOGGER.warn("Rejected invalid client request");
         return createResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleUnexpectedException(HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleUnexpectedException(
+            Exception exception,
+            HttpServletRequest request) {
+        LOGGER.error("Unexpected server exception; type={}", exception.getClass().getSimpleName());
         return createResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR_MESSAGE, request);
     }
 

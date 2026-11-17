@@ -30,3 +30,13 @@ Verification used Java 26.0.1 because Java 21 is not installed in the current en
 - [x] Documentation updated and clean test suite verified
 
 Verification: `mvnw.cmd clean test` passed with 4 tests, 0 failures, and 0 errors. The test-only MVC controller exercises all three error mappings without adding production endpoints.
+
+### Task 4: Logging — COMPLETE
+
+- [x] Confirm existing Spring Boot logging infrastructure (SLF4J and Logback via the web starter)
+- [x] Configure common and profile-specific logging levels
+- [x] Add startup and exception-handling logs without sensitive details
+- [x] Update logging documentation
+- [x] Run clean tests and verify default-profile startup
+
+Verification: `mvnw.cmd clean test` passed with 4 tests, 0 failures, and 0 errors. The existing test suite also passed under `dev`, `test`, and `prod`. The default-profile application started successfully on port 8081 and emitted the configured INFO startup event. Maven ran on Java 26.0.1 in this environment while compiling for the configured Java 21 release.

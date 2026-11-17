@@ -28,4 +28,20 @@ Global exception handling keeps controllers from repeating error-to-HTTP-respons
 
 PerkFlow uses `ResourceNotFoundException` for a missing resource (404) and `BadRequestException` for invalid client input (400). These types make the intent explicit and let the handler choose a status without guessing from message text. Other `Exception` instances receive a generic 500 response; their exception message and internal details are not returned.
 
-All handled errors use `ApiErrorResponse`: an ISO-8601 `Instant` timestamp, numeric HTTP status, standard HTTP reason phrase, message, and request URI path. Client errors retain their useful, safe exception message. Unexpected errors use a fixed generic message. The handler does not log exceptions; logging is reserved for a later task.
+All handled errors use `ApiErrorResponse`: an ISO-8601 `Instant` timestamp, numeric HTTP status, standard HTTP reason phrase, message, and request URI path. Client errors retain their useful, safe exception message. Unexpected errors use a fixed generic message.
+
+## Logging (Group 1, Task 4)
+
+Logging records application events and diagnostic information so developers and operators can understand startup and investigate failures. Spring Boot's web starter already brings the SLF4J API and Logback implementation, so PerkFlow uses `LoggerFactory` without adding a logging dependency. SLF4J is the logging interface used by application code; Logback is the implementation that writes and formats the events.
+
+Spring Boot reads logging settings from `application.properties` and the active profile's properties file. The common root level is INFO and the `com.perkflow` package has its own INFO level. Development enables DEBUG for PerkFlow and reduces Spring framework output to WARN. Test and production use a WARN root level with INFO for PerkFlow. Boot's standard console format is readable, so no custom pattern or file appender is needed.
+
+Use TRACE for very detailed tracing, DEBUG for diagnostic details, INFO for significant lifecycle events, WARN for recoverable or unusual conditions, and ERROR for failures that need attention. PerkFlow logs a startup event at INFO, active profiles at DEBUG, invalid client requests at WARN, and unexpected server exceptions at ERROR. The exception handler logs only a fixed description and exception type; it keeps the generic 500 response and does not send exception details to clients. Logs must never contain passwords, tokens, secrets, or unnecessary personal data because log files and log systems can be broadly accessible and retained.
+
+Activate a profile using `SPRING_PROFILES_ACTIVE=dev`, `test`, or `prod` in the process environment. For example, in PowerShell:
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "dev"
+.\mvnw.cmd spring-boot:run
+Remove-Item Env:SPRING_PROFILES_ACTIVE
+```
