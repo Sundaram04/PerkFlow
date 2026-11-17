@@ -1,63 +1,77 @@
 # Learning Notes
 
-## Configuration management (Group 1, Task 2)
+This document summarizes implemented Group 1 concepts. Product ideas and later-group technologies are labeled as future work; they are not described as existing features.
 
-Spring profiles select environment-specific settings while keeping the application code the same. With no active profile, Spring uses the `default` profile and loads the common `application.properties`. Setting `SPRING_PROFILES_ACTIVE` to `dev`, `test`, or `prod` loads the corresponding `application-{profile}.properties` alongside the common file. Profile-specific values take precedence over common file values.
+## Group 1 implementation summary
 
-The profile can be selected in PowerShell for the current terminal session:
+| Task | Objective and concepts | Implementation and decisions | Verification status |
+| --- | --- | --- | --- |
+| 1. Project Initialization & Foundation | Establish a minimal Java/Spring Boot application, Maven build, wrapper, properties, Git conventions, and initial docs. Concepts: `@SpringBootApplication`, `SpringApplication.run`, component-scan root, Maven starters, and application properties. | Java release 21 and Spring Boot 3.5.16 in `pom.xml`; Web and test starters only; app entry point in `com.perkflow`; Maven Wrapper set to Maven 3.9.12; default port was initially 8080. No business endpoints or persistence. | The committed progress record says the context test/build and startup on port 8080 were verified with Java 26.0.1. Exact original command output is not retained in Git. |
+| 2. Configuration Management | Separate shared and environment-specific settings; understand profiles, property precedence, `@Value`, and typed binding. | `application.properties` plus `application-{dev,test,prod}.properties`; defaults/overrides for port and `perkflow.*`; `PerkFlowProperties` record, `@ConfigurationPropertiesScan`, and a test field using `@Value`. Profile ports are 8082/8083/8080; default is 8081. No credentials. | The committed progress record reports profile and override checks. The current context test asserts values and typed binding; this audit reran default, all profiles, and environment overrides successfully. |
+| 3. Global Exception Handling | Centralize MVC exception-to-HTTP mapping and keep a consistent error contract. | `GlobalExceptionHandler` uses `@RestControllerAdvice` and `@ExceptionHandler`; custom runtime exceptions map to 404/400, other `Exception` types to a safe generic 500. `ApiErrorResponse` is a record. Test-only MVC routes avoid adding dummy production endpoints. | This audit's MockMvc tests passed for each mapping, required JSON fields, request path, and generic unexpected-error message. |
+| 4. Logging | Add useful application events using Spring Boot's built-in logging stack. | SLF4J API with Logback supplied by the Web starter; root/application levels in properties, with profile overrides; startup, WARN client rejection, and ERROR unexpected-exception logs. No file appender or added logging dependency. | Task 4's committed progress says default startup on port 8081 and tests passed. Task 5 added profile logging assertions; this audit reran the suite under each profile and default startup successfully. |
+| 5. Testing, Documentation & Final Verification | Review Group 1, check profile logging configuration, and finalize docs. | Context assertions cover logging levels; error tests continue to cover generic response safety; docs describe actual scope and future work. | Commit `ac624d4` records Task 5 and 4 passing tests. This audit repeated clean tests, all profile runs, overrides, default startup, and package verification; outcomes are in `PROGRESS.md`. |
 
-```powershell
-$env:SPRING_PROFILES_ACTIVE = "dev"
-.\mvnw.cmd spring-boot:run
-Remove-Item Env:SPRING_PROFILES_ACTIVE
-```
+### Commands and task-level verification evidence
 
-Use `test` or `prod` in place of `dev` to select those profiles. Production deployment should set `SPRING_PROFILES_ACTIVE=prod` outside the application rather than hard-coding it in the common properties file.
+- **Task 1:** The original brief prescribed `.\mvnw.cmd clean package` and `.\mvnw.cmd spring-boot:run`; the initial committed `PROGRESS.md` records build/start verification at port 8080, but not the exact invocations or full output. This audit reran `.\mvnw.cmd clean test` and `.\mvnw.cmd spring-boot:run`; a final package run is recorded in the audit tracker.
+- **Task 2:** This audit ran `.\mvnw.cmd -q test` once for each `SPRING_PROFILES_ACTIVE` value (`dev`, `test`, `prod`) and with environment overrides set. All runs passed.
+- **Task 3:** `.\mvnw.cmd clean test` passed; its three MockMvc tests exercised each exception mapping and payload.
+- **Task 4:** The same clean test suite passed, including the profile logging assertions; default `.\mvnw.cmd spring-boot:run` started on port 8081.
+- **Task 5:** The audit ran clean tests, each profile test run, the environment override test, default startup, and `git diff --check`. Outcomes are tracked in `PROGRESS.md`.
 
-The example ports are 8081 for the default profile, 8082 for `dev`, 8083 for `test`, and 8080 for `prod`. `SERVER_PORT` can replace any of these values.
+### Task 1 concepts
 
-Important settings have environment-variable defaults. For example, `server.port=${SERVER_PORT:8081}` means Spring uses `SERVER_PORT` when provided and falls back to `8081` otherwise. Profile files provide their own fallback ports. `PERKFLOW_ENVIRONMENT` similarly overrides the environment label. Environment variables are higher-precedence property sources than application files; command-line arguments can override them. Spring Boot also supports Java system properties and other external configuration sources.
+`@SpringBootApplication` combines configuration, auto-configuration, and component scanning. Because `PerkFlowApplication` is in `com.perkflow`, component scanning naturally covers that package and descendants. `SpringApplication.run()` creates and runs the application context. Maven starters collect compatible dependencies; the wrapper lets Windows use the repository's configured Maven version without requiring a separately installed Maven.
 
-`@Value` injects one property into a Spring bean, which is convenient for a small number of isolated values. `@ConfigurationProperties` binds related values under a prefix into a typed object; `PerkFlowProperties` collects the `perkflow.*` settings. It is easier to organize, validate, and test as a configuration group.
+### Task 2 configuration and precedence
 
-No passwords, API keys, or other secrets are stored in these files. Production secrets should be supplied through a secured deployment configuration source.
+With no active profile, Spring uses the default profile and loads `application.properties`. Setting `SPRING_PROFILES_ACTIVE` to `dev`, `test`, or `prod` loads the matching `application-{profile}.properties`; profile-specific values override shared file values. Environment variables can override placeholders such as `server.port=${SERVER_PORT:8081}` and `perkflow.environment=${PERKFLOW_ENVIRONMENT:default}`. Spring's external property sources include environment variables and command-line arguments; command-line arguments have higher precedence than environment variables. No secret values are stored in repository properties.
 
-## Global exception handling (Group 1, Task 3)
+`@Value` is convenient for one isolated setting. `@ConfigurationProperties` groups related settings under a prefix into a typed configuration object. `PerkFlowProperties` binds `perkflow.environment` and `perkflow.display-name`.
 
-Global exception handling keeps controllers from repeating error-to-HTTP-response conversion. `@RestControllerAdvice` applies shared controller advice across the application and writes returned objects as response bodies. `@ExceptionHandler` maps a specific exception type to a method that chooses its status and response.
+| Profile | Environment label default | Port default | Root log level | `com.perkflow` log level |
+| --- | --- | ---: | --- | --- |
+| default | `default` | 8081 | INFO | INFO |
+| dev | `development` | 8082 | INFO | DEBUG |
+| test | `test` | 8083 | WARN | INFO |
+| prod | `production` | 8080 | WARN | INFO |
 
-PerkFlow uses `ResourceNotFoundException` for a missing resource (404) and `BadRequestException` for invalid client input (400). These types make the intent explicit and let the handler choose a status without guessing from message text. Other `Exception` instances receive a generic 500 response; their exception message and internal details are not returned.
+`SERVER_PORT` is available in each profile. `PERKFLOW_ENVIRONMENT` overrides the environment label. `PERKFLOW_DISPLAY_NAME` overrides the common display name. Development additionally sets `logging.level.org.springframework=WARN`.
 
-All handled errors use `ApiErrorResponse`: an ISO-8601 `Instant` timestamp, numeric HTTP status, standard HTTP reason phrase, message, and request URI path. Client errors retain their useful, safe exception message. Unexpected errors use a fixed generic message.
+### Task 3 exception handling
 
-## Logging (Group 1, Task 4)
+`@RestControllerAdvice` applies exception-handling methods across Spring MVC controllers. `@ExceptionHandler` selects a handler by exception type. Missing resources map to HTTP 404, invalid client requests to 400, and other `Exception` instances to 500. `ApiErrorResponse` has an `Instant` timestamp, numeric status, reason phrase, message, and request URI. Client-error messages come from their custom exceptions; unexpected failures get a fixed generic message. Stack traces and internal exception details are not returned in the body.
 
-Logging records application events and diagnostic information so developers and operators can understand startup and investigate failures. Spring Boot's web starter already brings the SLF4J API and Logback implementation, so PerkFlow uses `LoggerFactory` without adding a logging dependency. SLF4J is the logging interface used by application code; Logback is the implementation that writes and formats the events.
+### Task 4 logging
 
-Spring Boot reads logging settings from `application.properties` and the active profile's properties file. The common root level is INFO and the `com.perkflow` package has its own INFO level. Development enables DEBUG for PerkFlow and reduces Spring framework output to WARN. Test and production use a WARN root level with INFO for PerkFlow. Boot's standard console format is readable, so no custom pattern or file appender is needed.
+SLF4J is the logging facade used by application code; Logback is the implementation. Spring Boot configures the stack through its starter and reads logger levels from properties. TRACE is very detailed, DEBUG helps diagnose, INFO records important events, WARN records unusual/recoverable conditions, and ERROR records unexpected failures. PerkFlow logs startup at INFO, active profiles at DEBUG, rejected invalid requests at WARN, and unexpected exceptions at ERROR. The error log includes only the exception type, not the exception message or stack trace. Never log secrets or unnecessary personal data.
 
-Use TRACE for very detailed tracing, DEBUG for diagnostic details, INFO for significant lifecycle events, WARN for recoverable or unusual conditions, and ERROR for failures that need attention. PerkFlow logs a startup event at INFO, active profiles at DEBUG, invalid client requests at WARN, and unexpected server exceptions at ERROR. The exception handler logs only a fixed description and exception type; it keeps the generic 500 response and does not send exception details to clients. Logs must never contain passwords, tokens, secrets, or unnecessary personal data because log files and log systems can be broadly accessible and retained.
+## Windows commands
 
-Activate a profile using `SPRING_PROFILES_ACTIVE=dev`, `test`, or `prod` in the process environment. For example, in PowerShell:
-
-```powershell
-$env:SPRING_PROFILES_ACTIVE = "dev"
-.\mvnw.cmd spring-boot:run
-Remove-Item Env:SPRING_PROFILES_ACTIVE
-```
-
-## Group 1 verification (Task 5)
-
-The application-context test checks the default or selected profile's environment name, port, typed `PerkFlowProperties` binding, and logging levels. The same test can be run with each profile by setting `SPRING_PROFILES_ACTIVE`. It also uses environment variables to check that `SERVER_PORT`, `PERKFLOW_ENVIRONMENT`, and `PERKFLOW_DISPLAY_NAME` override their file defaults. The MockMvc tests use a controller that exists only under `src/test`; they verify the exception-to-status mapping, shared response fields, request path, and generic unexpected-error message.
-
-From the project directory in Windows PowerShell:
+Run the default-profile suite and application:
 
 ```powershell
 .\mvnw.cmd clean test
-$env:SPRING_PROFILES_ACTIVE = "dev"
-.\mvnw.cmd test
-Remove-Item Env:SPRING_PROFILES_ACTIVE
 .\mvnw.cmd spring-boot:run
 ```
 
-Replace `dev` with `test` or `prod` to run the suite with another profile. Without `SPRING_PROFILES_ACTIVE`, Spring Boot uses the default profile. Environment overrides can be checked in the same PowerShell session, for example by setting `$env:SERVER_PORT`, `$env:PERKFLOW_ENVIRONMENT`, or `$env:PERKFLOW_DISPLAY_NAME` before running the tests.
+Run the suite under a profile (replace `dev` with `test` or `prod`):
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = "dev"
+.\mvnw.cmd test
+Remove-Item Env:SPRING_PROFILES_ACTIVE
+```
+
+Exercise environment-variable overrides in the configuration test:
+
+```powershell
+$env:SERVER_PORT = "8188"
+$env:PERKFLOW_ENVIRONMENT = "override-check"
+$env:PERKFLOW_DISPLAY_NAME = "PerkFlow Override Check"
+.\mvnw.cmd test
+Remove-Item Env:SERVER_PORT, Env:PERKFLOW_ENVIRONMENT, Env:PERKFLOW_DISPLAY_NAME
+```
+
+The Group 1 tasks do not implement a database, API business routes, security, messaging, or microservices. Group 2 (Database & Persistence) is planned but not started.
