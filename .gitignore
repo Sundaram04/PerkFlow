@@ -1,0 +1,27 @@
+target/
+*.class
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+application-local.properties
+application-*-local.properties
+*.pem
+*.key
+
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Maven wrapper distribution cache
+.mvn/wrapper/maven-wrapper.jar
+.m2/
