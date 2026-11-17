@@ -9,6 +9,7 @@
 - Database connectivity: `spring-boot-starter-jdbc` 3.5.16 and PostgreSQL JDBC driver 42.7.11, resolved through Spring Boot dependency management (no explicit versions in `pom.xml`).
 - Connection pool: HikariCP 6.3.3, brought in by the JDBC starter.
 - JDBC access: Spring `JdbcTemplate`; Boot auto-configures the `DataSource` from `spring.datasource.*` properties.
+- ORM/persistence: `spring-boot-starter-data-jpa` 3.5.16, with Hibernate ORM 6.6.53.Final supplied as its JPA provider; one `Customer` entity and direct `EntityManager` use in an integration test.
 - Tests: `spring-boot-starter-test` (test scope), Spring Boot Test, JUnit 5, and MockMvc.
 - Configuration: Java `.properties` files only; default plus `dev`, `test`, and `prod` profiles; `PerkFlowProperties` binds `perkflow.*` settings.
 - Error handling: Spring MVC `@RestControllerAdvice`, `@ExceptionHandler`, and the `ApiErrorResponse` record.
@@ -17,7 +18,7 @@
 
 ## Planned or not selected
 
-- Group 2 is titled Database & Persistence and is in progress. PostgreSQL/JDBC configuration and an integration test for local `perkflow_db` are implemented; actual database connectivity is not marked verified until the `SELECT 1` test passes. No business schema, ORM, or persistence repositories have been added.
+- Group 2 is titled Database & Persistence and is in progress. PostgreSQL/JDBC connectivity is implemented and Task 1's `SELECT 1` integration test passes. Task 2 adds the `Customer` mapping and a PostgreSQL-backed `EntityManager` lifecycle test; the test uses `create-drop` only on its test context. The latest complete Surefire run reports 6 tests passed with no failures, errors, or skips. No Spring Data repositories, production schema-generation setting, business API, or migrations have been added.
 - The original project brief names PostgreSQL, Kafka, RabbitMQ, and distributed systems as longer-term learning interests. They are not dependencies or implemented architecture. The detailed mapping of these technologies to later groups is not recorded in the repository.
 - Microservices, authentication/security, caching, business APIs, and notification delivery are future possibilities, not current features.
 

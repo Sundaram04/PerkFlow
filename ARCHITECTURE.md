@@ -8,6 +8,9 @@ PerkFlow is one Spring Boot web application. The main class, `com.perkflow.PerkF
 com.perkflow
 ├── PerkFlowApplication.java       # Spring Boot entry point and startup logs
 ├── PerkFlowProperties.java        # typed perkflow.* settings
+├── customer
+│   └── entity
+│       └── Customer.java          # JPA entity mapping
 └── exception
     ├── ApiErrorResponse.java      # common API error payload
     ├── BadRequestException.java   # client error type (400)
@@ -23,8 +26,12 @@ Application code uses SLF4J; Spring Boot's logging starter supplies Logback. Com
 
 ## Database connectivity (Group 2, Task 1)
 
-The application uses Spring Boot JDBC auto-configuration to create a `DataSource` from the shared `spring.datasource.*` properties. The PostgreSQL JDBC driver is available at runtime, and `JdbcTemplate` is the SQL access abstraction. The integration test injects `JdbcTemplate` and runs `SELECT 1` against the configured server. The default URL and username target the locally provisioned `perkflow_db` database and `perkflow_app` user; the password is required from `SPRING_DATASOURCE_PASSWORD`. Standard `SPRING_DATASOURCE_URL` and `SPRING_DATASOURCE_USERNAME` variables can override the defaults.
+The application uses Spring Boot JDBC auto-configuration to create a `DataSource` from shared `spring.datasource.*` properties. The PostgreSQL JDBC driver is available at runtime, and `JdbcTemplate` is used for direct SQL. Task 1's Surefire report records a passing `SELECT 1` integration test. The defaults target the locally provisioned `perkflow_db` database and `perkflow_app` user; the password is required from `SPRING_DATASOURCE_PASSWORD`.
+
+## JPA mapping (Group 2, Task 2)
+
+Spring Data JPA brings Hibernate as the JPA provider. Hibernate maps `Customer` to the `customers` table. Entity persistence is demonstrated through `EntityManager`; no Spring Data repository is defined. The PostgreSQL-backed lifecycle integration test passes. It applies `spring.jpa.hibernate.ddl-auto=create-drop` only to its own test context, so the test creates and drops the mapped table without enabling schema generation in application properties.
 
 ## Not implemented
 
-No business tables, entities, JPA/Hibernate, repositories, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The local database is expected to be provisioned outside the application; PerkFlow does not create databases or tables.
+No production CRUD endpoints, repository layer, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The `Customer` table is test-generated only; PerkFlow does not create the local database or manage a production schema.

@@ -104,4 +104,36 @@ $env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:5432/perkflow_db"
 $env:SPRING_DATASOURCE_USERNAME = "perkflow_app"
 ```
 
-Verification status for this task remains pending until the real database integration test succeeds. See `PROGRESS.md` for the recorded outcome and any environment limitation.
+Task 1 verification is recorded as complete: the committed PostgreSQL connectivity integration test report shows 1 test, 0 failures, 0 errors. Task 2 adds JPA on top of the same PostgreSQL DataSource.
+
+## Group 2, Task 2: JPA & Hibernate Fundamentals
+
+### JPA, Hibernate, and Spring Data JPA
+
+- **JPA (Jakarta Persistence)** is the standard API and set of mapping/lifecycle rules for object-relational persistence in Jakarta applications.
+- **Hibernate ORM** is the JPA provider used here. It implements the persistence operations and translates entity state changes into SQL.
+- **Spring Data JPA** is a Spring abstraction that can generate repository implementations on top of JPA. Its starter is included, but no repository is created in this task.
+- **ORM** maps objects and fields to relational tables and columns. `Customer` maps to `customers`; JPA annotations define its table, generated key, and column constraints.
+
+The resolved dependency tree shows Spring Data JPA 3.5.16 and Hibernate ORM 6.6.53.Final. The Spring Boot parent manages these versions; `pom.xml` does not pin them independently.
+
+`Customer` has a `Long` identifier, required `name` up to 100 characters, and required unique `email` up to 254 characters. `@Entity` marks it as persistent; `@Table` names its table; `@Id` marks the primary key; `@GeneratedValue(strategy = IDENTITY)` delegates key generation to the database identity column; and `@Column` sets nullability, uniqueness, and lengths. A protected no-argument constructor allows the persistence provider to instantiate the entity. No relationships or business methods are added.
+
+### EntityManager and persistence context
+
+`EntityManager` is the JPA interface for managing entities within a persistence context. The persistence context tracks entity identity and changes and acts as the first-level cache for that unit of work.
+
+The test demonstrates the lifecycle:
+
+1. A newly constructed `Customer` is **transient**; JPA does not track it.
+2. `persist()` makes it **managed** by the current persistence context.
+3. `flush()` synchronizes pending changes with PostgreSQL. It is not a transaction commit.
+4. `clear()` detaches all entities. `find()` then reloads the row, returning a managed instance with the persisted values.
+5. `detach()` makes that instance **detached**; further in-memory changes are not tracked automatically.
+6. `remove()` marks a managed entity for deletion; `flush()` sends the delete, and a subsequent `find()` returns no row. This is the **removed** state.
+
+The integration test uses `@SpringBootTest` with the configured PostgreSQL DataSource, not an in-memory database. A test-only `spring.jpa.hibernate.ddl-auto=create-drop` property on that test class asks Hibernate to create and drop the mapped table for the test. It is not placed in any application/profile properties file, so production schema generation is not enabled.
+
+### Verification status
+
+The dedicated PostgreSQL-backed JPA lifecycle test passed: it persisted a new customer, flushed it, cleared the persistence context, reloaded and checked its values, detached it, then removed it and verified it was absent. The complete test suite passed with 6 tests, 0 failures, 0 errors, and 0 skips. The Maven process must have `SPRING_DATASOURCE_PASSWORD` available and PostgreSQL listening on `localhost:5432`; no credential value belongs in the source tree or chat. See `PROGRESS.md` for the report summary.

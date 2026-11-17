@@ -4,7 +4,7 @@ PerkFlow is a Java/Spring learning project for a rewards platform. The long-term
 
 ## Current status
 
-Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. The application has Spring JDBC and PostgreSQL driver configuration and a `JdbcTemplate` integration test for `SELECT 1`; no business tables or persistence model exist yet. There are no production business endpoints, authentication components, or messaging systems.
+Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. PostgreSQL JDBC connectivity and the PostgreSQL-backed `Customer` JPA lifecycle integration test are verified. The test suite currently reports 6 tests passed with no failures, errors, or skips. The application has no repositories, CRUD API, or production schema-generation configuration. There are no production business endpoints, authentication components, or messaging systems.
 
 ## Current technologies
 
@@ -13,6 +13,7 @@ Group 1, Project Foundation & Environment, is complete. Group 2, Database & Pers
 - Maven through the Maven Wrapper (configured distribution 3.9.12)
 - Spring Boot Web and Spring Boot Starter Test
 - Spring Boot JDBC and the PostgreSQL JDBC driver
+- Spring Data JPA starter, which supplies Hibernate as the JPA provider
 - `application.properties` and `dev`, `test`, `prod` profiles
 
 See [TECH_STACK.md](TECH_STACK.md) for implemented, planned, and supporting technologies.
@@ -25,7 +26,7 @@ See [TECH_STACK.md](TECH_STACK.md) for implemented, planned, and supporting tech
 ```
 
 The default server port is 8081. There is no production endpoint, so the root URL is not an implemented application API.
-The full application test suite now needs the local PostgreSQL setup and `SPRING_DATASOURCE_PASSWORD` described below.
+The full application test suite now needs the local PostgreSQL setup and `SPRING_DATASOURCE_PASSWORD` described below. The JPA test uses test-scoped `create-drop` schema generation for the `customers` mapping; no production schema-generation setting is enabled.
 
 ## Local PostgreSQL setup
 
@@ -39,7 +40,15 @@ $env:SPRING_DATASOURCE_PASSWORD = "<local PostgreSQL password>"
 Remove-Item Env:SPRING_DATASOURCE_PASSWORD
 ```
 
-The common datasource URL and username defaults are `jdbc:postgresql://localhost:5432/perkflow_db` and `perkflow_app`. `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` override them. For a connectivity check, run `.\mvnw.cmd -Dtest=PostgresConnectivityIntegrationTest test` after setting the password variable. The test executes `SELECT 1` using `JdbcTemplate`.
+The common datasource URL and username defaults are `jdbc:postgresql://localhost:5432/perkflow_db` and `perkflow_app`. `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` override them. Run the integration tests after setting the password variable:
+
+```powershell
+.\mvnw.cmd -Dtest=PostgresConnectivityIntegrationTest test
+.\mvnw.cmd -Dtest=CustomerPersistenceIntegrationTest test
+.\mvnw.cmd clean test
+```
+
+The connectivity test executes `SELECT 1` using `JdbcTemplate`; the JPA test persists, flushes, clears, reloads, detaches, and removes a `Customer` using `EntityManager`.
 
 Activate an environment profile in PowerShell for the current session:
 

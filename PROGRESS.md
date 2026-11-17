@@ -39,14 +39,20 @@ All five Group 1 task-level commits are present on `main` (see Git audit below).
 
 ## Group 2: Database & Persistence — IN PROGRESS
 
-### Task 1: PostgreSQL Setup & Database Connectivity — IN PROGRESS (verification pending)
+### Task 1: PostgreSQL Setup & Database Connectivity — COMPLETE
 
 - Objective: connect Spring Boot to the manually provisioned local PostgreSQL database and verify JDBC connectivity.
 - Implemented: Spring Boot JDBC starter, PostgreSQL runtime driver, common `spring.datasource.*` configuration with standard environment overrides, and `PostgresConnectivityIntegrationTest` using `JdbcTemplate` to execute `SELECT 1`.
-- Restrictions preserved: no JPA/Hibernate, entities, repositories, business tables, migrations, endpoints, security, Kafka, or RabbitMQ.
-- Verification so far: Maven `-DskipTests test-compile` passed and dependency resolution confirmed Spring Boot JDBC 3.5.16, HikariCP 6.3.3, and PostgreSQL JDBC 42.7.11. A real database connection is pending `SPRING_DATASOURCE_PASSWORD`; the current Maven shell did not have it set and no listener was detected on port 5432 when inspected. Do not mark Task 1 complete until `SELECT 1` passes against PostgreSQL.
+- At the end of Task 1, no JPA/Hibernate, entities, repositories, business tables, migrations, endpoints, security, Kafka, or RabbitMQ had been introduced. Task 2 subsequently adds the first JPA entity and a test-only generated table, as recorded below.
+- Verification: the existing `target/surefire-reports/com.perkflow.PostgresConnectivityIntegrationTest.txt` records 1 test, 0 failures, and 0 errors. The test executes `SELECT 1` using the actual configured PostgreSQL DataSource. This report was present in the inspected repository workspace.
 
-### Tasks 2–5 — NOT STARTED
+### Task 2: JPA & Hibernate Fundamentals — COMPLETE
+
+- Implemented: `spring-boot-starter-data-jpa`; `Customer` mapping under `com.perkflow.customer.entity`; test-only Hibernate `create-drop` setting; `CustomerPersistenceIntegrationTest` demonstrates persistence-context lifecycle through `EntityManager`.
+- Restrictions preserved: no repositories, CRUD endpoints, relationships, other entities, Flyway, or production schema-generation configuration.
+- Verification: `.\mvnw.cmd -Dtest=CustomerPersistenceIntegrationTest test` passed: 1 test, 0 failures, 0 errors, 0 skipped. The test ran against PostgreSQL and verified `persist()`, `flush()`, `clear()`, `find()`, `detach()`, and `remove()`, including the reloaded customer values. `.\mvnw.cmd clean test` passed: 6 tests, 0 failures, 0 errors, 0 skipped. Surefire reports are in `target/surefire-reports/`. The Maven process requires the externally supplied `SPRING_DATASOURCE_PASSWORD`; it is not stored in the project.
+
+### Tasks 3–5 — NOT STARTED
 
 No work for later Group 2 tasks has been started.
 
