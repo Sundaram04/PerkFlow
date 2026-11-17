@@ -4,7 +4,7 @@ PerkFlow is a Java/Spring learning project for a rewards platform. The long-term
 
 ## Current status
 
-Group 1, Project Foundation & Environment, is complete. The repository currently contains a Spring Boot application foundation, profile-based configuration, typed configuration binding, centralized API error handling, profile-aware logging, and tests. There are no production business endpoints, database integrations, authentication components, or messaging systems. Group 2, Database & Persistence, has not started.
+Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. The application has Spring JDBC and PostgreSQL driver configuration and a `JdbcTemplate` integration test for `SELECT 1`; no business tables or persistence model exist yet. There are no production business endpoints, authentication components, or messaging systems.
 
 ## Current technologies
 
@@ -12,6 +12,7 @@ Group 1, Project Foundation & Environment, is complete. The repository currently
 - Spring Boot 3.5.16
 - Maven through the Maven Wrapper (configured distribution 3.9.12)
 - Spring Boot Web and Spring Boot Starter Test
+- Spring Boot JDBC and the PostgreSQL JDBC driver
 - `application.properties` and `dev`, `test`, `prod` profiles
 
 See [TECH_STACK.md](TECH_STACK.md) for implemented, planned, and supporting technologies.
@@ -24,6 +25,21 @@ See [TECH_STACK.md](TECH_STACK.md) for implemented, planned, and supporting tech
 ```
 
 The default server port is 8081. There is no production endpoint, so the root URL is not an implemented application API.
+The full application test suite now needs the local PostgreSQL setup and `SPRING_DATASOURCE_PASSWORD` described below.
+
+## Local PostgreSQL setup
+
+The application expects a local PostgreSQL server at `localhost:5432`, database `perkflow_db`, and username `perkflow_app`. Create the database and application user using your local PostgreSQL administration process. PerkFlow does not create the database or tables. Supply the password through `SPRING_DATASOURCE_PASSWORD`; do not put it in a tracked properties file.
+
+PowerShell example (replace the placeholder locally):
+
+```powershell
+$env:SPRING_DATASOURCE_PASSWORD = "<local PostgreSQL password>"
+.\mvnw.cmd spring-boot:run
+Remove-Item Env:SPRING_DATASOURCE_PASSWORD
+```
+
+The common datasource URL and username defaults are `jdbc:postgresql://localhost:5432/perkflow_db` and `perkflow_app`. `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` override them. For a connectivity check, run `.\mvnw.cmd -Dtest=PostgresConnectivityIntegrationTest test` after setting the password variable. The test executes `SELECT 1` using `JdbcTemplate`.
 
 Activate an environment profile in PowerShell for the current session:
 

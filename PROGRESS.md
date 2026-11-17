@@ -37,9 +37,18 @@ All five Group 1 task-level commits are present on `main` (see Git audit below).
 - Implemented: context test checks profile logging properties; updated documentation records implementation and future scope.
 - Verification record from commit `ac624d4`: 4 tests passed; all profiles and environment overrides were checked; default startup on 8081 was reported. The final audit reruns these checks. The project targets Java release 21, but the recorded runtime is Java 26.0.1.
 
-## Group 2: Database & Persistence — NOT STARTED
+## Group 2: Database & Persistence — IN PROGRESS
 
-This is the next group name supplied in the current project instructions. No database technology or persistence implementation is present.
+### Task 1: PostgreSQL Setup & Database Connectivity — IN PROGRESS (verification pending)
+
+- Objective: connect Spring Boot to the manually provisioned local PostgreSQL database and verify JDBC connectivity.
+- Implemented: Spring Boot JDBC starter, PostgreSQL runtime driver, common `spring.datasource.*` configuration with standard environment overrides, and `PostgresConnectivityIntegrationTest` using `JdbcTemplate` to execute `SELECT 1`.
+- Restrictions preserved: no JPA/Hibernate, entities, repositories, business tables, migrations, endpoints, security, Kafka, or RabbitMQ.
+- Verification so far: Maven `-DskipTests test-compile` passed and dependency resolution confirmed Spring Boot JDBC 3.5.16, HikariCP 6.3.3, and PostgreSQL JDBC 42.7.11. A real database connection is pending `SPRING_DATASOURCE_PASSWORD`; the current Maven shell did not have it set and no listener was detected on port 5432 when inspected. Do not mark Task 1 complete until `SELECT 1` passes against PostgreSQL.
+
+### Tasks 2–5 — NOT STARTED
+
+No work for later Group 2 tasks has been started.
 
 ## Groups 3–16 — NOT STARTED
 
@@ -75,7 +84,7 @@ Status: COMPLETE.
 - Existing suite under `SPRING_PROFILES_ACTIVE=dev`, `test`, and `prod` — all passed.
 - Existing context test with `SERVER_PORT=8188`, `PERKFLOW_ENVIRONMENT=override-check`, and `PERKFLOW_DISPLAY_NAME=PerkFlow Override Check` — passed.
 - `.\mvnw.cmd spring-boot:run` with no active profile — started successfully; logs confirmed the default profile and Tomcat port 8081.
-- Markdown content and cross-file claims reviewed; `git diff --check` passed. The diff contains documentation only.
+- Markdown content and cross-file claims reviewed; `git diff --check` passed. The Group 1 audit diff was documentation-only; the current Group 2 diff also contains the requested JDBC changes.
 - Verification runtime: Java 26.0.1; Maven compiler configured with `--release 21`. Java 21 runtime execution was not verified because JDK 21 is unavailable in this environment.
 
 ## Git audit
@@ -83,4 +92,4 @@ Status: COMPLETE.
 - Initial status before this documentation audit: clean; branch `main` matched `origin/main` at `ac624d4`.
 - Five task commits are present in order: `d11bec1` Task 1, `51da96a` Task 2, `c77e392` Task 3, `a3c2274` Task 4, and `ac624d4` Task 5.
 - The latest Group 1 commit is `ac624d4 test: strengthen configuration tests and finalize group 1`.
-- This audit does not modify existing commits and will not create a commit or push.
+- The Group 1 audit did not modify existing commits. Current Group 2 work is uncommitted; no commit or push has been made.

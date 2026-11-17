@@ -74,4 +74,34 @@ $env:PERKFLOW_DISPLAY_NAME = "PerkFlow Override Check"
 Remove-Item Env:SERVER_PORT, Env:PERKFLOW_ENVIRONMENT, Env:PERKFLOW_DISPLAY_NAME
 ```
 
-The Group 1 tasks do not implement a database, API business routes, security, messaging, or microservices. Group 2 (Database & Persistence) is planned but not started.
+The Group 1 tasks did not implement a database, API business routes, security, messaging, or microservices. Group 2 (Database & Persistence) is now in progress; its database connection test is described below.
+
+## Group 2, Task 1: PostgreSQL Setup & Database Connectivity
+
+### Concepts and implementation
+
+PostgreSQL is a relational database. The PostgreSQL JDBC driver implements JDBC, the standard Java interface for opening connections and executing SQL against a database. `spring-boot-starter-jdbc` adds Spring JDBC and HikariCP connection-pool support; the `postgresql` driver is runtime-scoped. The resolved versions are Spring Boot JDBC 3.5.16, HikariCP 6.3.3, and PostgreSQL JDBC 42.7.11, all managed by the Spring Boot parent without explicit versions in `pom.xml`.
+
+Spring Boot's datasource auto-configuration reads `spring.datasource.url`, `spring.datasource.username`, and `spring.datasource.password`, creates a `DataSource`, and makes JDBC access available to the application. PerkFlow keeps local URL and username defaults in common `application.properties`; password has no default and must come from `SPRING_DATASOURCE_PASSWORD`. Spring's relaxed binding recognizes the standard `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` environment variables. Database connection settings are common to the current profiles, so no duplicate profile datasource values were added. The local database and role are provisioned outside the app.
+
+`JdbcTemplate` wraps repetitive JDBC work such as obtaining a connection, preparing/executing SQL, mapping results, and releasing resources. `PostgresConnectivityIntegrationTest` injects it and runs `SELECT 1`, expecting integer `1`. The test is a real integration test: Spring creates its datasource and it needs the PostgreSQL server, database, role, and password to be available. No REST endpoint is needed. This task does not add JPA/Hibernate, entities, repositories, migrations, or business tables.
+
+### Local setup and commands
+
+Ensure PostgreSQL is running and the local database `perkflow_db` and role `perkflow_app` exist. Supply the password only in the local process environment. In PowerShell, replace the placeholder with the local password (never commit or share it):
+
+```powershell
+$env:SPRING_DATASOURCE_PASSWORD = "<local PostgreSQL password>"
+.\mvnw.cmd -Dtest=PostgresConnectivityIntegrationTest test
+.\mvnw.cmd clean test
+Remove-Item Env:SPRING_DATASOURCE_PASSWORD
+```
+
+Optional URL/username overrides:
+
+```powershell
+$env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:5432/perkflow_db"
+$env:SPRING_DATASOURCE_USERNAME = "perkflow_app"
+```
+
+Verification status for this task remains pending until the real database integration test succeeds. See `PROGRESS.md` for the recorded outcome and any environment limitation.

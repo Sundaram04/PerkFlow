@@ -6,6 +6,9 @@
 - Spring Boot: 3.5.16.
 - Build: Maven Wrapper, configured to download/use Maven 3.9.12; wrapper scripts are checked in.
 - Runtime framework: `spring-boot-starter-web`.
+- Database connectivity: `spring-boot-starter-jdbc` 3.5.16 and PostgreSQL JDBC driver 42.7.11, resolved through Spring Boot dependency management (no explicit versions in `pom.xml`).
+- Connection pool: HikariCP 6.3.3, brought in by the JDBC starter.
+- JDBC access: Spring `JdbcTemplate`; Boot auto-configures the `DataSource` from `spring.datasource.*` properties.
 - Tests: `spring-boot-starter-test` (test scope), Spring Boot Test, JUnit 5, and MockMvc.
 - Configuration: Java `.properties` files only; default plus `dev`, `test`, and `prod` profiles; `PerkFlowProperties` binds `perkflow.*` settings.
 - Error handling: Spring MVC `@RestControllerAdvice`, `@ExceptionHandler`, and the `ApiErrorResponse` record.
@@ -14,7 +17,7 @@
 
 ## Planned or not selected
 
-- Group 2 is titled Database & Persistence and is not started. No database product, ORM, schema, or persistence library has been selected or added.
+- Group 2 is titled Database & Persistence and is in progress. PostgreSQL/JDBC configuration and an integration test for local `perkflow_db` are implemented; actual database connectivity is not marked verified until the `SELECT 1` test passes. No business schema, ORM, or persistence repositories have been added.
 - The original project brief names PostgreSQL, Kafka, RabbitMQ, and distributed systems as longer-term learning interests. They are not dependencies or implemented architecture. The detailed mapping of these technologies to later groups is not recorded in the repository.
 - Microservices, authentication/security, caching, business APIs, and notification delivery are future possibilities, not current features.
 
@@ -22,4 +25,6 @@
 
 - Windows PowerShell commands use `mvnw.cmd`.
 - `.gitignore` excludes Maven output, IDE files, local environment files, and common secret/key files.
-- Git history contains five task-level commits for Group 1; no audit changes have been committed.
+- Git history contains five task-level commits for Group 1. Current Group 2 work remains uncommitted.
+
+The PostgreSQL database and `perkflow_app` role are a local prerequisite supplied outside the application. Connection defaults are in `application.properties`; the password is externalized as `SPRING_DATASOURCE_PASSWORD`.

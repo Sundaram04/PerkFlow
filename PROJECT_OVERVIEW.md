@@ -8,7 +8,7 @@ The initial brief also names service-oriented architecture and synchronous REST/
 
 ## Current implementation
 
-Group 1, Project Foundation & Environment, is complete. Implemented foundation capabilities are:
+Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is now in progress. Implemented capabilities include:
 
 - Spring Boot startup in the `com.perkflow` root package.
 - Common and `dev`, `test`, and `prod` properties files with environment-variable overrides.
@@ -16,8 +16,9 @@ Group 1, Project Foundation & Environment, is complete. Implemented foundation c
 - Central exception advice with 400, 404, and generic 500 responses.
 - SLF4J logging through the Logback infrastructure supplied by Spring Boot.
 - Context/configuration tests and MockMvc tests using a test-only controller.
+- PostgreSQL JDBC DataSource configuration and a `JdbcTemplate` connectivity integration test (`SELECT 1`); database verification status is recorded in [PROGRESS.md](PROGRESS.md).
 
-No production API routes, domain model, database, persistence repository, authentication, or message broker currently exists. Group 2 is identified as Database & Persistence and is not started. Exact titles for Groups 3–16 and the project Definition of Done were not present in the tracked baseline or the original Task 1 brief available in this repository context; see [PROGRESS.md](PROGRESS.md).
+No production API routes, domain model, business tables, entities, persistence repository, authentication, or message broker currently exists. The application expects the local database and role to be provisioned outside the app. Exact titles for Groups 3–16 and the project Definition of Done were not present in the tracked baseline or the original Task 1 brief available in this repository context; see [PROGRESS.md](PROGRESS.md).
 
 ## Technology baseline
 

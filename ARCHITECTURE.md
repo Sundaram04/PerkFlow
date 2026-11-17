@@ -21,6 +21,10 @@ When an exception reaches Spring MVC, `GlobalExceptionHandler` creates an `ApiEr
 
 Application code uses SLF4J; Spring Boot's logging starter supplies Logback. Common and profile-specific properties set logging levels. Output uses Spring Boot's default console configuration; there is no custom file appender.
 
+## Database connectivity (Group 2, Task 1)
+
+The application uses Spring Boot JDBC auto-configuration to create a `DataSource` from the shared `spring.datasource.*` properties. The PostgreSQL JDBC driver is available at runtime, and `JdbcTemplate` is the SQL access abstraction. The integration test injects `JdbcTemplate` and runs `SELECT 1` against the configured server. The default URL and username target the locally provisioned `perkflow_db` database and `perkflow_app` user; the password is required from `SPRING_DATASOURCE_PASSWORD`. Standard `SPRING_DATASOURCE_URL` and `SPRING_DATASOURCE_USERNAME` variables can override the defaults.
+
 ## Not implemented
 
-There is no domain/service/repository layer, database, schema, authentication, microservice boundary, REST client, or asynchronous messaging. Those must not be inferred from the platform's future product vision. Group 2 (Database & Persistence) is the next planned group, but it has not started and no database technology has been selected in code.
+No business tables, entities, JPA/Hibernate, repositories, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The local database is expected to be provisioned outside the application; PerkFlow does not create databases or tables.
