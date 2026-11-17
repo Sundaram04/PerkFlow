@@ -8,5 +8,9 @@ Confirmed initial choices:
 - Spring Boot Web starter
 - Spring Boot Starter Test with Spring Boot managed JUnit 5
 - `application.properties` for configuration
+- Spring profiles: `default`, `dev`, `test`, and `prod`
+- `@ConfigurationProperties` for the typed `perkflow.*` settings group; `@Value` for a single injected property
+- `@RestControllerAdvice` and `@ExceptionHandler` for centralized API error responses
+- `ApiErrorResponse` record for consistent error payloads
 
 No database, security, cache, or messaging technology has been added in this task.
