@@ -27,6 +27,11 @@ class PerkFlowApplicationTests {
         assertEquals(System.getenv().getOrDefault("PERKFLOW_DISPLAY_NAME", "PerkFlow"),
                 perkFlowProperties.displayName());
         assertEquals(expectedPort(), environment.getProperty("server.port"));
+        assertEquals(expectedApplicationLogLevel(), environment.getProperty("logging.level.com.perkflow"));
+        assertEquals(expectedRootLogLevel(), environment.getProperty("logging.level.root"));
+        if ("dev".equals(selectedProfile())) {
+            assertEquals("WARN", environment.getProperty("logging.level.org.springframework"));
+        }
     }
 
     private String expectedEnvironment() {
@@ -54,6 +59,17 @@ class PerkFlowApplicationTests {
             case "test" -> "8083";
             case "prod" -> "8080";
             default -> "8081";
+        };
+    }
+
+    private String expectedApplicationLogLevel() {
+        return "dev".equals(selectedProfile()) ? "DEBUG" : "INFO";
+    }
+
+    private String expectedRootLogLevel() {
+        return switch (selectedProfile()) {
+            case "test", "prod" -> "WARN";
+            default -> "INFO";
         };
     }
 

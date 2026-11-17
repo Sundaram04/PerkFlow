@@ -14,5 +14,6 @@ Confirmed initial choices:
 - `ApiErrorResponse` record for consistent error payloads
 - SLF4J API with Logback, supplied by the Spring Boot Web starter, for application logging
 - Spring Boot property-based logging levels with profile-specific settings; standard console output and no file logging setup
+- JUnit 5 and Spring Boot Test for application-context/configuration checks and MockMvc tests of the exception advice
 
-No database, security, cache, or messaging technology has been added in this task.
+The current project has no business endpoints, database, security, cache, or messaging technology.

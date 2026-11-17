@@ -1,6 +1,6 @@
 # Progress
 
-## Group 1: IN PROGRESS
+## Group 1: COMPLETE
 
 ### Task 1: Project Initialization & Foundation
 
@@ -40,3 +40,12 @@ Verification: `mvnw.cmd clean test` passed with 4 tests, 0 failures, and 0 error
 - [x] Run clean tests and verify default-profile startup
 
 Verification: `mvnw.cmd clean test` passed with 4 tests, 0 failures, and 0 errors. The existing test suite also passed under `dev`, `test`, and `prod`. The default-profile application started successfully on port 8081 and emitted the configured INFO startup event. Maven ran on Java 26.0.1 in this environment while compiling for the configured Java 21 release.
+
+### Task 5: Testing, Documentation & Final Verification — COMPLETE
+
+- [x] Reviewed configuration, exception handling, logging, tests, Maven setup, and Group 1 documentation
+- [x] Asserted profile-specific logging levels in the application-context test
+- [x] Verified clean tests, each profile, environment-variable overrides, and final diff
+- [x] Finalized documentation and confirmed Group 1 scope
+
+Final verification: `mvnw.cmd clean test` passed with 4 tests, 0 failures, and 0 errors. The suite also passed under `dev`, `test`, and `prod`, and with `SERVER_PORT`, `PERKFLOW_ENVIRONMENT`, and `PERKFLOW_DISPLAY_NAME` overridden by environment variables. Default-profile startup was previously verified on port 8081. Java 26.0.1 was used for verification; Maven compiles with the configured release target 21.

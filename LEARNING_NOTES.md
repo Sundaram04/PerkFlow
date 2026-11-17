@@ -45,3 +45,19 @@ $env:SPRING_PROFILES_ACTIVE = "dev"
 .\mvnw.cmd spring-boot:run
 Remove-Item Env:SPRING_PROFILES_ACTIVE
 ```
+
+## Group 1 verification (Task 5)
+
+The application-context test checks the default or selected profile's environment name, port, typed `PerkFlowProperties` binding, and logging levels. The same test can be run with each profile by setting `SPRING_PROFILES_ACTIVE`. It also uses environment variables to check that `SERVER_PORT`, `PERKFLOW_ENVIRONMENT`, and `PERKFLOW_DISPLAY_NAME` override their file defaults. The MockMvc tests use a controller that exists only under `src/test`; they verify the exception-to-status mapping, shared response fields, request path, and generic unexpected-error message.
+
+From the project directory in Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean test
+$env:SPRING_PROFILES_ACTIVE = "dev"
+.\mvnw.cmd test
+Remove-Item Env:SPRING_PROFILES_ACTIVE
+.\mvnw.cmd spring-boot:run
+```
+
+Replace `dev` with `test` or `prod` to run the suite with another profile. Without `SPRING_PROFILES_ACTIVE`, Spring Boot uses the default profile. Environment overrides can be checked in the same PowerShell session, for example by setting `$env:SERVER_PORT`, `$env:PERKFLOW_ENVIRONMENT`, or `$env:PERKFLOW_DISPLAY_NAME` before running the tests.

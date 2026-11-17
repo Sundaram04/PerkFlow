@@ -1,9 +1,13 @@
 # Architecture Decisions
 
-## Initial platform choices
+## Group 1 architecture overview
+
+PerkFlow is currently a minimal Spring Boot web application. `PerkFlowApplication` starts the application and scans typed `perkflow.*` settings into the `PerkFlowProperties` record. Common settings live in `application.properties`; `dev`, `test`, and `prod` override environment-specific values. There are no business controllers or persistence components yet. When an application exception reaches the web layer, `GlobalExceptionHandler` maps it to the standard `ApiErrorResponse`. SLF4J logging calls use the Logback implementation supplied by Spring Boot.
+
+### Platform decisions
 
 - Java 21 is the configured Java language level.
-- Spring Boot 3.5.16 is used because it is the latest stable 3.x release compatible with Java 21 and the requested JUnit 5 test stack. Spring Boot 4.x requires JUnit 6 through its Spring Framework 7 test integration.
+- Spring Boot 3.5.16 is the selected version and is configured with Java 21 and Spring Boot's managed JUnit 5 test stack.
 - Maven and the Maven Wrapper provide the build entry point.
 - `application.properties` is the sole application configuration format.
 - Common settings and environment-specific values are separated into `application.properties` and `application-{profile}.properties`. The profiles use example ports and environment labels only; they contain no credentials or secrets.
