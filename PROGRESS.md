@@ -52,7 +52,13 @@ All five Group 1 task-level commits are present on `main` (see Git audit below).
 - Restrictions preserved: no repositories, CRUD endpoints, relationships, other entities, Flyway, or production schema-generation configuration.
 - Verification: `.\mvnw.cmd -Dtest=CustomerPersistenceIntegrationTest test` passed: 1 test, 0 failures, 0 errors, 0 skipped. The test ran against PostgreSQL and verified `persist()`, `flush()`, `clear()`, `find()`, `detach()`, and `remove()`, including the reloaded customer values. `.\mvnw.cmd clean test` passed: 6 tests, 0 failures, 0 errors, 0 skipped. Surefire reports are in `target/surefire-reports/`. The Maven process requires the externally supplied `SPRING_DATASOURCE_PASSWORD`; it is not stored in the project.
 
-### Tasks 3–5 — NOT STARTED
+### Task 3: Spring Data JPA Repositories & Entity Relationships — IN PROGRESS
+
+- Implemented: `CustomerRepository` extends `JpaRepository<Customer, Long>` and declares derived email lookup, email existence, and name lookup methods. PostgreSQL-backed integration test cases cover save/generated ID, lookups, exists, missing email, and delete with unique values and rollback transactions.
+- Relationship decision: `Customer` is the only domain entity, so no relationship is mapped. A future customer-owned row may own a lazy many-to-one foreign key to `Customer`; cascade behavior is deferred until a concrete entity and lifecycle are defined.
+- Verification: `.\mvnw.cmd -DskipTests test-compile` passed and compiled the application and test sources with `--release 21`. PostgreSQL-backed tests and `.\mvnw.cmd clean test` have not run for Task 3 because `SPRING_DATASOURCE_PASSWORD` is unavailable in the current tool shell. Do not mark Task 3 complete until the real PostgreSQL integration test and full suite pass.
+
+### Tasks 4–5 — NOT STARTED
 
 No work for later Group 2 tasks has been started.
 

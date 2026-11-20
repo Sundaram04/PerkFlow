@@ -1,6 +1,6 @@
 # Learning Notes
 
-This document summarizes implemented Group 1 concepts. Product ideas and later-group technologies are labeled as future work; they are not described as existing features.
+This document summarizes implemented Group 1 and Group 2 concepts. Product ideas and later-group technologies are labeled as future work; they are not described as existing features.
 
 ## Group 1 implementation summary
 
@@ -74,7 +74,7 @@ $env:PERKFLOW_DISPLAY_NAME = "PerkFlow Override Check"
 Remove-Item Env:SERVER_PORT, Env:PERKFLOW_ENVIRONMENT, Env:PERKFLOW_DISPLAY_NAME
 ```
 
-The Group 1 tasks did not implement a database, API business routes, security, messaging, or microservices. Group 2 (Database & Persistence) is now in progress; its database connection test is described below.
+The Group 1 tasks did not implement a database, API business routes, security, messaging, or microservices. Group 2 (Database & Persistence) is in progress; its implemented persistence work is described below.
 
 ## Group 2, Task 1: PostgreSQL Setup & Database Connectivity
 
@@ -137,3 +137,13 @@ The integration test uses `@SpringBootTest` with the configured PostgreSQL DataS
 ### Verification status
 
 The dedicated PostgreSQL-backed JPA lifecycle test passed: it persisted a new customer, flushed it, cleared the persistence context, reloaded and checked its values, detached it, then removed it and verified it was absent. The complete test suite passed with 6 tests, 0 failures, 0 errors, and 0 skips. The Maven process must have `SPRING_DATASOURCE_PASSWORD` available and PostgreSQL listening on `localhost:5432`; no credential value belongs in the source tree or chat. See `PROGRESS.md` for the report summary.
+
+## Group 2, Task 3: Spring Data JPA repositories and relationships
+
+`CustomerRepository` is a Spring Data repository interface that extends `JpaRepository<Customer, Long>`. Spring Data supplies standard operations such as `save`, `findById`, `deleteById`, and `flush`; the application does not implement those methods manually. The declared `findByEmail`, `existsByEmail`, and `findByName` methods are derived queries: Spring Data parses their method names and creates the corresponding query from the `Customer` property names. `findByEmail` returns `Optional<Customer>` to represent a missing result explicitly.
+
+The repository integration test uses the real configured PostgreSQL DataSource, unique generated test emails, and a test transaction that rolls back each case. Test-only `create-drop` creates the table for the test context. Coverage includes save and generated ID lookup, email lookup, email existence, name lookup, a missing email, and deletion.
+
+No relationship is mapped because `Customer` remains the only domain entity. A future related entity should own its foreign key when the relationship is many-to-one; lazy fetching and no cascade are the starting assumptions, subject to the actual aggregate ownership and lifecycle. The mapping itself is deferred until that domain entity exists.
+
+Task 3 verification is pending until the PostgreSQL-backed test suite runs successfully. The test shell needs `SPRING_DATASOURCE_PASSWORD` and PostgreSQL on `localhost:5432`; never put the credential in tracked files.

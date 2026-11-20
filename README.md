@@ -4,7 +4,7 @@ PerkFlow is a Java/Spring learning project for a rewards platform. The long-term
 
 ## Current status
 
-Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. PostgreSQL JDBC connectivity and the PostgreSQL-backed `Customer` JPA lifecycle integration test are verified. The test suite currently reports 6 tests passed with no failures, errors, or skips. The application has no repositories, CRUD API, or production schema-generation configuration. There are no production business endpoints, authentication components, or messaging systems.
+Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. PostgreSQL JDBC connectivity, the PostgreSQL-backed `Customer` JPA lifecycle test, and a `CustomerRepository` persistence interface with derived queries are implemented. Task 3 repository tests are awaiting PostgreSQL verification. There is no customer service, CRUD API, or production schema-generation configuration. There are no production business endpoints, authentication components, or messaging systems.
 
 ## Current technologies
 

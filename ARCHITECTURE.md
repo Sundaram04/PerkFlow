@@ -9,8 +9,10 @@ com.perkflow
 ├── PerkFlowApplication.java       # Spring Boot entry point and startup logs
 ├── PerkFlowProperties.java        # typed perkflow.* settings
 ├── customer
-│   └── entity
-│       └── Customer.java          # JPA entity mapping
+│   ├── entity
+│   │   └── Customer.java          # JPA entity mapping
+│   └── repository
+│       └── CustomerRepository.java # Spring Data JPA persistence interface
 └── exception
     ├── ApiErrorResponse.java      # common API error payload
     ├── BadRequestException.java   # client error type (400)
@@ -30,8 +32,10 @@ The application uses Spring Boot JDBC auto-configuration to create a `DataSource
 
 ## JPA mapping (Group 2, Task 2)
 
-Spring Data JPA brings Hibernate as the JPA provider. Hibernate maps `Customer` to the `customers` table. Entity persistence is demonstrated through `EntityManager`; no Spring Data repository is defined. The PostgreSQL-backed lifecycle integration test passes. It applies `spring.jpa.hibernate.ddl-auto=create-drop` only to its own test context, so the test creates and drops the mapped table without enabling schema generation in application properties.
+Spring Data JPA brings Hibernate as the JPA provider. Hibernate maps `Customer` to the `customers` table. `CustomerRepository` extends `JpaRepository<Customer, Long>` and declares derived queries by email and name and an email existence check. The PostgreSQL-backed EntityManager lifecycle and repository integration tests use test-context-only `spring.jpa.hibernate.ddl-auto=create-drop`; this does not enable schema generation in application properties. Test transactions roll back repository records.
+
+`Customer` is the only domain entity, so there is no entity relationship yet. Relationship design is deferred until a concrete related entity and its ownership/lifecycle are defined. No speculative associations or cascade rules are added.
 
 ## Not implemented
 
-No production CRUD endpoints, repository layer, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The `Customer` table is test-generated only; PerkFlow does not create the local database or manage a production schema.
+No production CRUD endpoints, business service layer, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The repository is a persistence interface only. The `Customer` table is test-generated only; PerkFlow does not create the local database or manage a production schema.

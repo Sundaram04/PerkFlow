@@ -20,7 +20,13 @@ The password is supplied through `SPRING_DATASOURCE_PASSWORD` and is not stored 
 | `name` (`String`) | Column `name` | Required, maximum length 100 |
 | `email` (`String`) | Column `email` | Required, unique, maximum length 254 |
 
-This is the first persistence mapping, not a completed customer business feature. There are no repositories, relationships, or CRUD API endpoints.
+This is the first persistence mapping, not a completed customer business feature. `CustomerRepository` provides persistence operations using Spring Data JPA, but there are no business services or CRUD API endpoints.
+
+## Repository and relationship status
+
+`com.perkflow.customer.repository.CustomerRepository` extends `JpaRepository<Customer, Long>`. It adds derived lookups by email and name plus an email existence check; the standard CRUD operations come from `JpaRepository`. Repository integration tests exercise these operations against PostgreSQL and roll back their test transactions.
+
+`Customer` is currently the only domain entity, so no entity relationship is mapped. Relationship implementation is deferred until a real related domain entity is introduced. At that point, the foreign-key owner, fetch behavior (lazy by default), and any cascade behavior should follow the actual domain ownership and lifecycle. No cascade is assumed in advance.
 
 ## Schema lifecycle and migration status
 

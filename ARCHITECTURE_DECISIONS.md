@@ -26,6 +26,13 @@
 - Demonstrate persistence through `EntityManager`, so the persistence context and lifecycle are visible without adding a production service/repository or REST API.
 - Scope Hibernate `create-drop` to the integration test's `@SpringBootTest` properties. Do not configure schema generation in application/profile properties; production must not create or drop tables as a side effect of this task.
 
+## Group 2, Task 3: repositories and relationships
+
+- Define `CustomerRepository` as a Spring Data `JpaRepository` interface and use derived method names for simple lookups; do not hand-write standard CRUD or custom SQL for these operations.
+- Keep repository coverage at the PostgreSQL integration layer, using unique email values and rollback transactions to avoid persistent test data.
+- Do not add a relationship while `Customer` is the only domain entity. When a real related entity is introduced, decide foreign-key ownership and cascade from its domain lifecycle; use lazy fetching by default and avoid speculative cascades.
+- Keep relationship work deferred until the related entity exists. The proposed default for a future customer-owned row is an owning many-to-one association from that row to `Customer`, with the foreign key on the related table, lazy fetching, and no cascade unless aggregate ownership justifies one.
+
 ## Deliberately not decided or implemented
 
-PostgreSQL and Hibernate/JPA are selected for local connectivity and the first entity mapping. The project has no Spring Data repositories, production CRUD routes, business service layer, schema migrations, authentication, microservices, caching, or messaging. Group 2 is in progress; later tasks have not started. Kafka and RabbitMQ appear as future learning interests in the initial brief, not as technology decisions. The repository does not contain the detailed original 16-group roadmap or a Definition of Done; the tracker notes this rather than reconstructing either from assumptions.
+PostgreSQL and Hibernate/JPA are selected for local connectivity and the first entity mapping. The project has one Spring Data repository interface but no production CRUD routes, business service layer, schema migrations, authentication, microservices, caching, or messaging. Group 2 is in progress; later tasks have not started. Kafka and RabbitMQ appear as future learning interests in the initial brief, not as technology decisions. The repository does not contain the detailed original 16-group roadmap or a Definition of Done; the tracker notes this rather than reconstructing either from assumptions.
