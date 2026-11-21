@@ -10,6 +10,7 @@
 - Connection pool: HikariCP 6.3.3, brought in by the JDBC starter.
 - JDBC access: Spring `JdbcTemplate`; Boot auto-configures the `DataSource` from `spring.datasource.*` properties.
 - ORM/persistence: `spring-boot-starter-data-jpa` 3.5.16, with Hibernate ORM 6.6.53.Final supplied as its JPA provider; one `Customer` entity, `CustomerRepository`, and direct `EntityManager` use in integration tests.
+- Schema migrations: Flyway core and PostgreSQL database module, version 11.7.2 managed by Spring Boot; versioned SQL migrations under `src/main/resources/db/migration`.
 - Tests: `spring-boot-starter-test` (test scope), Spring Boot Test, JUnit 5, and MockMvc.
 - Configuration: Java `.properties` files only; default plus `dev`, `test`, and `prod` profiles; `PerkFlowProperties` binds `perkflow.*` settings.
 - Error handling: Spring MVC `@RestControllerAdvice`, `@ExceptionHandler`, and the `ApiErrorResponse` record.
@@ -18,7 +19,7 @@
 
 ## Planned or not selected
 
-- Group 2 is titled Database & Persistence and is in progress. PostgreSQL/JDBC connectivity is implemented and Task 1's `SELECT 1` integration test passes. Task 2 adds the `Customer` mapping and a PostgreSQL-backed `EntityManager` lifecycle test. Task 3 adds `CustomerRepository` and repository integration test cases; Task 3 verification is pending. The JPA tests use `create-drop` only on their test contexts. There is no production schema-generation setting, business API, or migration tooling.
+- Group 2 is titled Database & Persistence and is in progress. PostgreSQL/JDBC connectivity and the Task 1 connectivity test are implemented. Tasks 2 and 3 add `Customer`, `CustomerRepository`, and PostgreSQL integration tests; Task 3 verification remains pending. Task 4 adds Flyway V1 and changes Hibernate to `validate`, with clean disabled. Task 4 and full-suite database verification remain pending in this environment. There is no business API.
 - The original project brief names PostgreSQL, Kafka, RabbitMQ, and distributed systems as longer-term learning interests. They are not dependencies or implemented architecture. The detailed mapping of these technologies to later groups is not recorded in the repository.
 - Microservices, authentication/security, caching, business APIs, and notification delivery are future possibilities, not current features.
 

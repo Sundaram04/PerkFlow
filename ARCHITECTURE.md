@@ -30,12 +30,12 @@ Application code uses SLF4J; Spring Boot's logging starter supplies Logback. Com
 
 The application uses Spring Boot JDBC auto-configuration to create a `DataSource` from shared `spring.datasource.*` properties. The PostgreSQL JDBC driver is available at runtime, and `JdbcTemplate` is used for direct SQL. Task 1's Surefire report records a passing `SELECT 1` integration test. The defaults target the locally provisioned `perkflow_db` database and `perkflow_app` user; the password is required from `SPRING_DATASOURCE_PASSWORD`.
 
-## JPA mapping (Group 2, Task 2)
+## JPA persistence and migrations (Group 2)
 
-Spring Data JPA brings Hibernate as the JPA provider. Hibernate maps `Customer` to the `customers` table. `CustomerRepository` extends `JpaRepository<Customer, Long>` and declares derived queries by email and name and an email existence check. The PostgreSQL-backed EntityManager lifecycle and repository integration tests use test-context-only `spring.jpa.hibernate.ddl-auto=create-drop`; this does not enable schema generation in application properties. Test transactions roll back repository records.
+Spring Data JPA brings Hibernate as the JPA provider. Hibernate maps `Customer` to the `customers` table. `CustomerRepository` extends `JpaRepository<Customer, Long>` and declares derived queries by email and name and an email existence check. Flyway applies versioned scripts from `classpath:db/migration` before Hibernate initializes. `V1__create_customers_table.sql` creates the initial schema; Hibernate uses `ddl-auto=validate` to check the mapping without changing the schema. Flyway clean is disabled. Repository integration tests use transactions that roll back customer rows.
 
 `Customer` is the only domain entity, so there is no entity relationship yet. Relationship design is deferred until a concrete related entity and its ownership/lifecycle are defined. No speculative associations or cascade rules are added.
 
 ## Not implemented
 
-No production CRUD endpoints, business service layer, schema migrations, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The repository is a persistence interface only. The `Customer` table is test-generated only; PerkFlow does not create the local database or manage a production schema.
+No production CRUD endpoints, business service layer, authentication, microservice boundary, REST client, or asynchronous messaging are implemented. The repository is a persistence interface only. PerkFlow does not create the PostgreSQL database itself; Flyway manages the application schema through versioned migrations.

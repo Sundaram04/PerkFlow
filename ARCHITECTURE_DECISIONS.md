@@ -24,7 +24,7 @@
 - Add Spring Boot's `spring-boot-starter-data-jpa`; let Spring Boot manage Hibernate and its compatible versions. Do not add repository abstractions, entities beyond the first `Customer`, or migration tooling in this task.
 - Map `Customer` with Jakarta Persistence annotations and a protected no-argument constructor. Use a database-generated identity key and required, bounded name/email columns; email is unique.
 - Demonstrate persistence through `EntityManager`, so the persistence context and lifecycle are visible without adding a production service/repository or REST API.
-- Scope Hibernate `create-drop` to the integration test's `@SpringBootTest` properties. Do not configure schema generation in application/profile properties; production must not create or drop tables as a side effect of this task.
+- At Task 2, scope Hibernate `create-drop` to the integration test's `@SpringBootTest` properties. This temporary test strategy was superseded by Task 4's Flyway-owned schema and Hibernate `validate` setting.
 
 ## Group 2, Task 3: repositories and relationships
 
@@ -32,6 +32,13 @@
 - Keep repository coverage at the PostgreSQL integration layer, using unique email values and rollback transactions to avoid persistent test data.
 - Do not add a relationship while `Customer` is the only domain entity. When a real related entity is introduced, decide foreign-key ownership and cascade from its domain lifecycle; use lazy fetching by default and avoid speculative cascades.
 - Keep relationship work deferred until the related entity exists. The proposed default for a future customer-owned row is an owning many-to-one association from that row to `Customer`, with the foreign key on the related table, lazy fetching, and no cascade unless aggregate ownership justifies one.
+
+## Group 2, Task 4: Flyway schema ownership
+
+- Use Flyway versioned SQL migrations as the single schema-creation mechanism. The first migration creates the existing `Customer` mapping; later changes should use new migration versions.
+- Add both Flyway core and its PostgreSQL database module, with versions managed by the Spring Boot dependency management.
+- Set Hibernate to `validate` so ORM startup checks the migration-created schema without modifying it. Remove test-only `create-drop` settings so integration tests use the same migration path as the application.
+- Explicitly disable Flyway clean. Do not run destructive schema operations as part of application startup or tests.
 
 ## Deliberately not decided or implemented
 
