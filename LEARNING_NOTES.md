@@ -132,7 +132,7 @@ The test demonstrates the lifecycle:
 5. `detach()` makes that instance **detached**; further in-memory changes are not tracked automatically.
 6. `remove()` marks a managed entity for deletion; `flush()` sends the delete, and a subsequent `find()` returns no row. This is the **removed** state.
 
-The integration test uses `@SpringBootTest` with the configured PostgreSQL DataSource, not an in-memory database. A test-only `spring.jpa.hibernate.ddl-auto=create-drop` property on that test class asks Hibernate to create and drop the mapped table for the test. It is not placed in any application/profile properties file, so production schema generation is not enabled.
+At Task 2, the integration test used a test-only `create-drop` setting to demonstrate entity persistence. Group 2 Task 4 replaces that approach: Flyway owns schema creation, and Hibernate now uses `ddl-auto=validate` in the shared application configuration.
 
 ### Verification status
 
@@ -142,8 +142,16 @@ The dedicated PostgreSQL-backed JPA lifecycle test passed: it persisted a new cu
 
 `CustomerRepository` is a Spring Data repository interface that extends `JpaRepository<Customer, Long>`. Spring Data supplies standard operations such as `save`, `findById`, `deleteById`, and `flush`; the application does not implement those methods manually. The declared `findByEmail`, `existsByEmail`, and `findByName` methods are derived queries: Spring Data parses their method names and creates the corresponding query from the `Customer` property names. `findByEmail` returns `Optional<Customer>` to represent a missing result explicitly.
 
-The repository integration test uses the real configured PostgreSQL DataSource, unique generated test emails, and a test transaction that rolls back each case. Test-only `create-drop` creates the table for the test context. Coverage includes save and generated ID lookup, email lookup, email existence, name lookup, a missing email, and deletion.
+The repository integration test uses the real configured PostgreSQL DataSource, unique generated test emails, and a test transaction that rolls back each case. Flyway creates the table before Hibernate validates the mapping. Coverage includes save and generated ID lookup, email lookup, email existence, name lookup, a missing email, and deletion.
 
 No relationship is mapped because `Customer` remains the only domain entity. A future related entity should own its foreign key when the relationship is many-to-one; lazy fetching and no cascade are the starting assumptions, subject to the actual aggregate ownership and lifecycle. The mapping itself is deferred until that domain entity exists.
 
-Task 3 verification is pending until the PostgreSQL-backed test suite runs successfully. The test shell needs `SPRING_DATASOURCE_PASSWORD` and PostgreSQL on `localhost:5432`; never put the credential in tracked files.
+Task 3 repository verification was pending before Flyway was introduced. It must be rerun with the migration-managed schema as part of Task 4 verification. The test shell needs `SPRING_DATASOURCE_PASSWORD` and PostgreSQL on `localhost:5432`; never put the credential in tracked files.
+
+## Group 2, Task 4: Flyway database migrations
+
+Flyway is the schema versioning and migration tool. The application has a versioned SQL migration at `src/main/resources/db/migration/V1__create_customers_table.sql`. Spring Boot detects Flyway and applies pending migrations during startup, recording successful versions in `flyway_schema_history`. PostgreSQL support is provided by Flyway's PostgreSQL database module in addition to `flyway-core`.
+
+The V1 migration creates the `customers` table using a generated identity primary key and the same required name/email column lengths and email uniqueness as the `Customer` entity. A future schema change should be another versioned migration rather than an edit to an already applied migration.
+
+Hibernate's `spring.jpa.hibernate.ddl-auto=validate` checks that the entity mapping agrees with the schema and does not generate DDL. The previous test-specific `create-drop` overrides were removed so integration tests exercise the same migration-owned schema. `spring.flyway.clean-disabled=true` prevents Flyway's destructive clean operation. The migration integration test checks for a successful V1 row in `flyway_schema_history` and the `customers` table. Its PostgreSQL verification is pending because the current tool environment has no configured datasource password or local PostgreSQL listener.

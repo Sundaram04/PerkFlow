@@ -48,7 +48,7 @@ All five Group 1 task-level commits are present on `main` (see Git audit below).
 
 ### Task 2: JPA & Hibernate Fundamentals — COMPLETE
 
-- Implemented: `spring-boot-starter-data-jpa`; `Customer` mapping under `com.perkflow.customer.entity`; test-only Hibernate `create-drop` setting; `CustomerPersistenceIntegrationTest` demonstrates persistence-context lifecycle through `EntityManager`.
+- Implemented at Task 2 completion: `spring-boot-starter-data-jpa`; `Customer` mapping under `com.perkflow.customer.entity`; test-only Hibernate `create-drop` setting; `CustomerPersistenceIntegrationTest` demonstrates persistence-context lifecycle through `EntityManager`. Task 4 replaces that schema setup with Flyway and Hibernate validation.
 - Restrictions preserved: no repositories, CRUD endpoints, relationships, other entities, Flyway, or production schema-generation configuration.
 - Verification: `.\mvnw.cmd -Dtest=CustomerPersistenceIntegrationTest test` passed: 1 test, 0 failures, 0 errors, 0 skipped. The test ran against PostgreSQL and verified `persist()`, `flush()`, `clear()`, `find()`, `detach()`, and `remove()`, including the reloaded customer values. `.\mvnw.cmd clean test` passed: 6 tests, 0 failures, 0 errors, 0 skipped. Surefire reports are in `target/surefire-reports/`. The Maven process requires the externally supplied `SPRING_DATASOURCE_PASSWORD`; it is not stored in the project.
 
@@ -58,7 +58,12 @@ All five Group 1 task-level commits are present on `main` (see Git audit below).
 - Relationship decision: `Customer` is the only domain entity, so no relationship is mapped. A future customer-owned row may own a lazy many-to-one foreign key to `Customer`; cascade behavior is deferred until a concrete entity and lifecycle are defined.
 - Verification: `.\mvnw.cmd -DskipTests test-compile` passed and compiled the application and test sources with `--release 21`. PostgreSQL-backed tests and `.\mvnw.cmd clean test` have not run for Task 3 because `SPRING_DATASOURCE_PASSWORD` is unavailable in the current tool shell. Do not mark Task 3 complete until the real PostgreSQL integration test and full suite pass.
 
-### Tasks 4–5 — NOT STARTED
+### Task 4: Flyway Database Migrations — IN PROGRESS
+
+- Implemented: Flyway core and PostgreSQL module; V1 migration for `customers`; Hibernate `ddl-auto=validate`; explicit Flyway clean disable; removed test-context `create-drop` overrides; added migration history/table integration test.
+- Verification: not run against PostgreSQL. The current execution environment has no `SPRING_DATASOURCE_PASSWORD` and no local listener on port 5432. Do not mark Task 4 complete until Flyway history, repository/persistence integration tests, and the full suite pass.
+
+### Task 5 — NOT STARTED
 
 No work for later Group 2 tasks has been started.
 

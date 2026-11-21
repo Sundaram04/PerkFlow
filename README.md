@@ -4,7 +4,7 @@ PerkFlow is a Java/Spring learning project for a rewards platform. The long-term
 
 ## Current status
 
-Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. PostgreSQL JDBC connectivity, the PostgreSQL-backed `Customer` JPA lifecycle test, and a `CustomerRepository` persistence interface with derived queries are implemented. Task 3 repository tests are awaiting PostgreSQL verification. There is no customer service, CRUD API, or production schema-generation configuration. There are no production business endpoints, authentication components, or messaging systems.
+Group 1, Project Foundation & Environment, is complete. Group 2, Database & Persistence, is in progress. PostgreSQL JDBC connectivity, a `Customer` JPA entity, `CustomerRepository`, and Flyway migration V1 are implemented. Hibernate validates the Flyway-managed schema. Group 2 Tasks 3 and 4 PostgreSQL verification is pending. There is no customer service or CRUD API. There are no production business endpoints, authentication components, or messaging systems.
 
 ## Current technologies
 
@@ -26,11 +26,11 @@ See [TECH_STACK.md](TECH_STACK.md) for implemented, planned, and supporting tech
 ```
 
 The default server port is 8081. There is no production endpoint, so the root URL is not an implemented application API.
-The full application test suite now needs the local PostgreSQL setup and `SPRING_DATASOURCE_PASSWORD` described below. The JPA test uses test-scoped `create-drop` schema generation for the `customers` mapping; no production schema-generation setting is enabled.
+The full application test suite needs the local PostgreSQL setup and `SPRING_DATASOURCE_PASSWORD` described below. Flyway applies versioned schema migrations at startup; Hibernate validates the mapped schema and does not create or update it. Flyway clean is disabled.
 
 ## Local PostgreSQL setup
 
-The application expects a local PostgreSQL server at `localhost:5432`, database `perkflow_db`, and username `perkflow_app`. Create the database and application user using your local PostgreSQL administration process. PerkFlow does not create the database or tables. Supply the password through `SPRING_DATASOURCE_PASSWORD`; do not put it in a tracked properties file.
+The application expects a local PostgreSQL server at `localhost:5432`, database `perkflow_db`, and username `perkflow_app`. Create the database and application user using your local PostgreSQL administration process. PerkFlow does not create the database itself; Flyway creates and versions the application tables. Supply the password through `SPRING_DATASOURCE_PASSWORD`; do not put it in a tracked properties file.
 
 PowerShell example (replace the placeholder locally):
 
@@ -45,10 +45,12 @@ The common datasource URL and username defaults are `jdbc:postgresql://localhost
 ```powershell
 .\mvnw.cmd -Dtest=PostgresConnectivityIntegrationTest test
 .\mvnw.cmd -Dtest=CustomerPersistenceIntegrationTest test
+.\mvnw.cmd -Dtest=CustomerRepositoryIntegrationTest test
+.\mvnw.cmd -Dtest=FlywayMigrationIntegrationTest test
 .\mvnw.cmd clean test
 ```
 
-The connectivity test executes `SELECT 1` using `JdbcTemplate`; the JPA test persists, flushes, clears, reloads, detaches, and removes a `Customer` using `EntityManager`.
+The connectivity test executes `SELECT 1` using `JdbcTemplate`; the JPA tests persist and query `Customer` records using `EntityManager` and `CustomerRepository`. The Flyway test checks migration version 1 in `flyway_schema_history`. Repository tests run in rollback transactions.
 
 Activate an environment profile in PowerShell for the current session:
 
