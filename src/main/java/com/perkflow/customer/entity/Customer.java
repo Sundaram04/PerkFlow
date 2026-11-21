@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "customers")
@@ -20,6 +21,9 @@ public class Customer {
 
     @Column(nullable = false, unique = true, length = 254)
     private String email;
+
+    @Version
+    private Long version;
 
     protected Customer() {
         // Required by JPA.
@@ -40,5 +44,13 @@ public class Customer {
 
     public String getEmail() {
         return email;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void renameTo(String name) {
+        this.name = name;
     }
 }
